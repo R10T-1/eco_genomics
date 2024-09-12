@@ -1,0 +1,6 @@
+gpfs1/cl/pbio3990 - all paths should be this one 
+last time we worked with fast q using zcat(gunzipped) files
+  q scores predict the probablity of that base being incorrect, they use a log10 calculation 
+  
+FastP is a program used in the pipeline that trims sequences- trims low quality bases, adapters, etc. (i think this is an alternative to trimmomatic)
+VCFR is a program that allows up to actually look at the genetic data collected in the raw vcf file 
