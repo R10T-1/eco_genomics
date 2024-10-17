@@ -1,0 +1,6 @@
+new("snmfProject", snmfProject.file = "vcf_final.filtered.thinned.snmfProject", 
+    projDir = "HW1/", snmfDir = "vcf_final.filtered.thinned.snmf/", 
+    input.file = "vcf_final.filtered.thinned.geno", runs = list(), 
+    K = integer(0), snmfClass.files = logical(0), n = integer(0), 
+    L = integer(0), creationTime = structure(1728526924.90563, class = c("POSIXct", 
+    "POSIXt")))

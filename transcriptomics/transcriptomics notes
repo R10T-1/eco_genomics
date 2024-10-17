@@ -1,0 +1,17 @@
+transcrptomics notes 
+first two sessions were about learning to use deseq2 
+the first one was just everyone trying to install it 
+today (10/10) we actually ran it 
+
+10/15 
+start by running all the code from last time so we can look at how exposures affect expression
+dds object is the whole mapping of the gene expression
+results file is loookng at specific conditions
+log2fold change: shows the compariosn in the gene expression from one treatment to another, but in terms of doubling (as opposed to multplying by ten in a log10)
+###anytime you call something from your own data you put quotes around it
+
+in our volcano plot, the significant genes were orange, we saw the orange dots be in the left-most and right-most quadrants 
+we see that there is upregulation on the right and downregulation on the left, and this is going from 22 to 18 
+each dot on the plot is one gene from all the genes we had after trimming 
+
+

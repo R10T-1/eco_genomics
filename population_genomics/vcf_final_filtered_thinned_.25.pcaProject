@@ -1,0 +1,6 @@
+new("pcaProject", projDir = "/gpfs1/home/s/a/santelo/projects/eco_genomics/population_genomics/HW1/", 
+    pcaDir = "vcf_final_filtered_thinned_.25.pca/", n = 238L, 
+    L = 4074L, K = 238L, center = TRUE, scale = TRUE, pcaProject.file = "vcf_final_filtered_thinned_.25.pcaProject", 
+    input.file = "vcf_final_filtered_thinned_.25.lfmm", eigenvalue.file = "vcf_final_filtered_thinned_.25.eigenvalues", 
+    eigenvector.file = "vcf_final_filtered_thinned_.25.eigenvectors", 
+    sdev.file = "vcf_final_filtered_thinned_.25.sdev", projection.file = "vcf_final_filtered_thinned_.25.projections")
