@@ -2,6 +2,7 @@
 
 #make sure that DESeq2 and ggplot are loaded, load if not
 library(pheatmap)
+
 #this is to help us make a heatmap
 
 options(bitmapType = "cairo")

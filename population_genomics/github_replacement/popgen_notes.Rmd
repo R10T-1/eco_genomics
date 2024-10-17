@@ -1,0 +1,87 @@
+gpfs1/cl/pbio3990 - all paths should be this one 
+last time we worked with fast q using zcat(gunzipped) files
+  q scores predict the probablity of that base being incorrect, they use a log10 calculation 
+  
+FastP is a program used in the pipeline that trims sequences- trims low quality bases, adapters, etc. (i think this is an alternative to trimmomatic)
+VCFR is a program that allows up to actually look at the genetic data collected in the raw vcf file 
+
+filtering strategies: depth, missingness, low-frequency alleles. 
+  Low depth: limited accuracy of GT cell 
+  High depth: assembly error paralogy(reads from duplicated genes mapping to the same position)
+Missingness: individual-level, SNP-level
+?[function] in the console tells you more info about that function
+to subeset datasets use the syntax df[rows,colums] -> if you want to view all the rows and only columns 1 and 4 it would be df[,c(1,4)] leaving rows blank tells the computer to use all of them
+meta2 <- meta[meta$id %in% colnames(vcf@gt[,-1]),] # "meta%id" calls the specific variable "id" from the meta file, it takes them from the meta and the vcf and makes amtrix of just the ones that match between them, "%in% colnames(vcf@gt)" specifies to look within the columns except 1 and all the rows from the vcf file at the GT slot (genotype section)
+
+#calculate diversity stats using the genetic_diff fxn in vcfR
+vcf.div <- genetic_diff(vcf,
+                        pops=as.factor(meta2$region),
+                        method="nei")
+
+#visualize the data 
+str(vcf.div) #tells you the structure of the data frame as opposed to head showing you the first few lines
+
+#data wrangling- if you peak into the first slot of vcf.div, there is an entry for every single snp, how do we get the unique values only?
+unique(vcf.div$CHROM)
+CM is the real chromosome assembly, IDs the stat with JARY are scaffolds 
+cbind binds columns from two different sources together, we used it to assign a number to the ids #make manhattan plot 
+manhattan(vcf.div.MHplot,
+          chr="V2",
+          bp="POS",
+          p="Gst",
+          col=c("blue4","orange3"),
+          logp=F,
+          ylab="Fst among regions",
+          suggestiveline = quantile(vcf.div.MHplot$Gst,0.999))
+
+#manhattan plot is like THE ecological genomics plot, each dot is a SNP, Fst is the frequency of the SNPs along the chromosome among the populations
+#the dip in the middle of the chromosomes on the plot represents the centromere 
+#to plot the median use the 50th quantile
+manhattan(vcf.div.MHplot,
+          chr="V2",
+          bp="POS",
+          p="Gst",
+          col=c("blue4","orange3"),
+          logp=F,
+          ylab="Fst among regions",
+          suggestiveline = quantile(vcf.div.MHplot$Gst,0.5))
+#by looking at individual loci we can see that there are some SNPs that stand out, why do we see certain loci having abnormally high Fst, this can be caused by neutral factors like genetic drift and bottlenecking, where it will affect the genome as a whole, these areas are refferred to as outliers
+
+%>% tydyverse pipe, tells tydyverse to send the output to the next step
+vcf.div.MHplot %>% 
+  as_tibble() %>%
+  pivot_longer(c())
+  
+vcf.div.MHplot %>% 
+  as_tibble() %>%
+  pivot_longer(c(4:9)) %>%
+  group_by(name) %>% 
+  filter(value!=0) %>%
+  summarise(avg_Hs=mean(value), StdDev_Hs=sd(value), N_Hs=n())
+  
+  #gave us a table summary of the data
+  
+  #lets look at it as more of a histogram or density plot
+vcf.div.MHplot %>% 
+  as_tibble() %>%
+  pivot_longer(c(4:9)) %>%
+  ggplot(aes(x=value, fill=name)) + 
+  geom_histogram(position = "identity", alpha=0.5, bins=50) +
+  labs(title="Genome-wide expected heterozygosity (Hs)",fill="Regions",
+       x="Gene diversity within Regions", y="Counts of SNPs")
+"system()" is a command that allows us to type as though we are in the command line, within an r script
+
+Structure- program that runs admixture analysis, similar to pca in some ways but the important difference is that admixture analysis has a genetic model as opposed to PCA which uses math. The genetic model in question in based in Hardy Weinberg Equilibrium -> predicting genotypes based in random mating anf allows you to predict the heterozygous class with frequencies. this of course is under the assumption of random mating, population structure interferes with random mating meaning that if you calcukate p and q across the total population you would find fewer heterozygotes than you would expect (higher frequency of homozygotes) 
+  admixture analysis uses this to group subpopulations, k=number of groups
+    1) choose value of k (between 1 and 10)
+    2) assign ind. to one of those k groups, can be random or not
+    3) calculate allele frequencies in each group (p's and q's)
+    4) calculate 2pq based on that and compare to observed het. freq. 
+    5) attempts to come back to step 2 iteratively 
+    6) calulates a new value Q which is the measure of fractional ancestry fr individuals in each group
+        - creates a martrix of k colums and n rows 
+    - cross validation is splitting data into training and testing, might hold back percent of data when setting up the model so that you can use the percent you held back to test the model 
+Missed class on October 1 , therefore couldnt take notes, today (10/3) I am uodating my admixture scrip using the one from brightspace, debugging the mistakes I had from last time, and Starting my Selection script also from the brightspace one, i will then work on the homework
+10/7/24 
+have been working on the selection code for a bit and i cant seem to make the SNP numeric variables for PC1 and PC2, at first i had written "the Pval wrong (used pcadapt.mhplot instead of pcadapt.pca), i noticed that and changed it but it still isnt working, when i make my variables and try to do pPC1 and pPC2 they dont exist
+" names (pcadapt.MHplot) [4:5] <- c("pPC1", "pPC2") " - used this to change the names of 1 and 2 to pPC1 and pPC2 , still not sure why thhe names came out wrong but it should work now
