@@ -17,7 +17,7 @@ resultsNames(dds) #these are the results we will refer back to
 
   #1. compare baseline gene expression between developmental treatment groups
 res_D18_BASE_D22_BASE <- results(dds, contrast=c("group", "D18BASE", "D22BASE"), alpha = 0.05)
-res_D18_BASE_D22_BASE <- res_D18_BASE_D22_[!is.na(res_D18_BASE_D22_$padj),] #getting rid of empty data points and adjusting pvalues
+res_D18_BASE_D22_BASE <- res_D18_BASE_D22_BASE[!is.na(res_D18_BASE_D22_BASE$padj),] #getting rid of empty data points and adjusting pvalues
 res_D18_BASE_D22_BASE <- res_D18_BASE_D22_BASE[order(res_D18_BASE_D22_BASE$padj),] #order by adjusted p value
 summary(res_D18_BASE_D22_BASE)
       # out of 32768 with nonzero total read count
@@ -69,4 +69,72 @@ length(intersect(degs_D18_A33_D22_A33,degs_D18_A28_D22_A28)) #29
 
 length(intersect(degs_D18_BASE_D22_BASE,(intersect(degs_D18_A28_D22_A28, degs_D18_A33_D22_A33)))) #23 
   #you could also name a variable nested_intersection <- [intersection of two of them] and then use that as an argument in an intersect with the last group
+
+#calculate the number of unique genes in each portion of the euler plot
+#we can do that based on the values above 
+1935-107-44+23 #number of genes in A28 not overlapping=1807 genes diffirentially expressed uniquely at baseline v btwn 18 vs 22
+296-107-29+23 #183= uniquely expressed when exposed to 28
+78-44-29+23 #28 uniquely ex;ressed when exosed to 33
+
+107-23 #84 unique to BASE & A28 
+44-23 #21 unque to BASE & A33
+29-23 #6 unique to A28 & A23
+
+myEuler <- euler(c("BASE"=1807, "A28"=183, "A33"=28, "BASE&A28"=84, "BASE&A33"=21, "A28&A33"=6, "BASE&A28&A33"=23))
+
+plot(myEuler, lty=1:3, quatities=TRUE)
+
+###########################
+#
+#make a scatter plot of responses to A28/33 when copepods develop at 18 vs 22 
+
+#contrast  D18_A28vsBASE
+res_D18_BASEvsA28 <- as.data.frame(results(dds, contrast =c("group","D18BASE","D18A28"), alpha = 0.05))
+
+#contrast D22_A28vsBASE
+res_D22_BASEvsA28 <- as.data.frame(results(dds, contrast =c("group","D22BASE","D22A28"), alpha = 0.05))
+
+#merge data frames 
+res_df28 <- merge(res_D18_BASEvsA28, res_D22_BASEvsA28, by = "row.names", suffixes = c(".18", ".22"))
+rownames(res_df28) <- res_df28$Row.names
+res_df28 <- res_df28[, -1]
+
+library(dplyr)
+library(tidyr)
+
+#define color mapping logic with mutate function 
+
+res_df28 <- res_df28 %>%
+  mutate(fill = case_when(
+    padj.18 < 0.05 & stat.18 < 0 ~ "turquoise2", 
+    padj.18 < 0.05 & stat.18 > 0 ~ "magenta1",
+    padj.22 < 0.05 & stat.22 < 0 ~ "blue2",
+    padj.22 < 0.05 & stat.22 > 0 ~ "red"
+  ))
+
+# Count the number of points per fill color 
+color_counts <- res_df28 %>%
+  group_by(fill) %>%
+  summarise(count = n())
+
+#create a data frame for the labels
+label_positions <- data.frame(
+  fill = c("blue2","magenta1", "red", "turquoise2"),
+  x_pos = c(1,5,0,-7.5),
+  y_pos = c(-5,0,9,3)
+)
+
+lebel_data <- merge(color_counts, label_positions, by = "fill")
+
+#plot 
+ggplot(res_df28, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
+  geom_point(alpha = 0.8) +
+  scale_color_identity() +
+  geom_text(data = lebel_data, aes( x = x_pos, y = y_pos, label = count, color = fill),
+            size = 5) +
+  labs(x = "Log2FoldChange 28 vs BASE at 18",
+       y = "Log2FoldChange 28 vs BASE at 22", 
+       title = "How does response to 28 C vary by DevTemp?") +
+  theme_minimal()
+
 
