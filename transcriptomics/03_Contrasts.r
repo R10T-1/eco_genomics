@@ -124,17 +124,84 @@ label_positions <- data.frame(
   y_pos = c(-5,0,9,3)
 )
 
-lebel_data <- merge(color_counts, label_positions, by = "fill")
+label_data28 <- merge(color_counts, label_positions, by = "fill")
 
 #plot 
-ggplot(res_df28, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
+plot28 <- ggplot(res_df28, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
   geom_point(alpha = 0.8) +
   scale_color_identity() +
-  geom_text(data = lebel_data, aes( x = x_pos, y = y_pos, label = count, color = fill),
+  geom_text(data = label_data28, aes( x = x_pos, y = y_pos, label = count, color = fill),
             size = 5) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black") +
+  geom_abline(intercept = 0, slope = -1, linetype = "dashed", color = "grey") +
+  xlim(-10,10) + ylim(-10,10) +
   labs(x = "Log2FoldChange 28 vs BASE at 18",
        y = "Log2FoldChange 28 vs BASE at 22", 
        title = "How does response to 28 C vary by DevTemp?") +
   theme_minimal()
+plot28
 
+####repeat for A33
+#make a scatter plot of responses to A28/33 when copepods develop at 18 vs 22 
 
+#contrast  D18_A33vsBASE
+res_D18_BASEvsA33 <- as.data.frame(results(dds, contrast =c("group","D18BASE","D18A33"), alpha = 0.05))
+
+#contrast D22_A28vsBASE
+res_D22_BASEvsA33 <- as.data.frame(results(dds, contrast =c("group","D22BASE","D22A33"), alpha = 0.05))
+
+#merge data frames 
+res_df33 <- merge(res_D18_BASEvsA33, res_D22_BASEvsA33, by = "row.names", suffixes = c(".18", ".22"))
+rownames(res_df33) <- res_df33$Row.names
+res_df33 <- res_df33[, -1]
+
+library(dplyr)
+library(tidyr)
+
+#define color mapping logic with mutate function 
+
+res_df33 <- res_df33 %>%
+  mutate(fill = case_when(
+    padj.18 < 0.05 & stat.18 < 0 ~ "cadetblue", 
+    padj.18 < 0.05 & stat.18 > 0 ~ "deeppink",
+    padj.22 < 0.05 & stat.22 < 0 ~ "cornflowerblue",
+    padj.22 < 0.05 & stat.22 > 0 ~ "firebrick2"
+  ))
+
+# Count the number of points per fill color 
+color_counts <- res_df33 %>%
+  group_by(fill) %>%
+  summarise(count = n())
+
+#create a data frame for the labels
+label_positions <- data.frame(
+  fill = c("deepskyblue","deeppink", "firebrick2", "cornflowerblue"),
+  x_pos = c(1,5,0,-7.5),
+  y_pos = c(-5,0,9,3)
+)
+
+label_data33 <- merge(color_counts, label_positions, by = "fill")
+
+#plot 
+plot33 <- ggplot(res_df33, aes(x = log2FoldChange.18, y = log2FoldChange.22, color = fill)) +
+  geom_point(alpha = 0.8) +
+  scale_color_identity() +
+  geom_text(data = label_data33, aes( x = x_pos, y = y_pos, label = count, color = fill),
+            size = 5) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black") +
+  geom_abline(intercept = 0, slope = -1, linetype = "dashed", color = "grey") +
+  labs(x = "Log2FoldChange 33 vs BASE at 18",
+       y = "Log2FoldChange 33 vs BASE at 22", 
+       title = "How does response to 33 C vary by DevTemp?") +
+  theme_minimal()
+plot33
+
+#put the plots togethr into a two pnel plot 
+
+library(gridExtra)
+combined_plot <- grid.arrange(plot28, plot33, ncol = 2)
+
+#for some reason, the labels get messed up sometimes and will have the same numbers on each figure, i found that if i run the whole thing as a chunk it works
+
+#save plot 
+ggsave("~/projects/eco_genomics/transcriptomics/figures/combined_scatter_plot.png", combined_plot, width = 12, height = 6)
