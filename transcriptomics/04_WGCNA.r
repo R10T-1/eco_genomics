@@ -132,3 +132,4 @@ grid.arrange(a1, a2, nrow = 2)
 #as you increase power(strength of relationship) you lower the correlation 
 #you need to chose what power is going to maximize the biological relevance while maintaining connectivity
 #we will chose a threshold around 24-26
+
