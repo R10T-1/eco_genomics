@@ -30,6 +30,8 @@ conds
 colSums(countsTableRound)
 mean(colSums(countsTableRound))
 
+par(mar=c(1,1,1,1))
+
 barplot(colSums(countsTableRound), names.arg = colnames(countsTableRound),
         cex.names = 0.5, las = 2, ylim = c(0,30000000))
 abline(h=mean(colSums(countsTableRound)), col = "blue4", lwd=2)

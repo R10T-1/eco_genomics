@@ -60,3 +60,4 @@ mat <- assay(vsd)[topgenes,] #making matrix of all the gene expression data acro
 df <- as.data.frame(colData(dds)[,c("DevTemp","FinalTemp")])
 pheatmap(mat, annotation_col=df, show_rownames=FALSE, cluster_cols=T, cluster_rows=T)
 #columns are samples, rows are genes, color correlates with the magnitude of expression 
+
