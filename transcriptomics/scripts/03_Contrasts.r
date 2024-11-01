@@ -10,7 +10,6 @@ resultsNames(dds) #these are the results we will refer back to
 #[1] "Intercept"               "group_D18A33_vs_D18A28"  "group_D18BASE_vs_D18A28"
 #[4] "group_D22A28_vs_D18A28"  "group_D22A33_vs_D18A28"  "group_D22BASE_vs_D18A28"
 
-
 #make separate files for each contrast so that we can compare what is differentially expressed within the groups 
 #we are comparing within groups adn between groups (compare devtemp vs final temp or compare the levels within the groups)
 

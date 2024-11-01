@@ -19,7 +19,6 @@ dim(countsTable)
 #DESeq2 doesnt like decimals, but salmon uses them, so we need to round 
 countsTableRound <- round(countsTable) 
 
-
 tail(countsTableRound)
 
 conds <- read.delim("/gpfs1/cl/pbio3990/Transcriptomics/experimental_details.txt",
